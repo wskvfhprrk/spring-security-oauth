@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 import javax.annotation.PostConstruct;
 
@@ -30,7 +31,7 @@ public class AuthorizatiionServerApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		//启动后可以加载用户到数据库中
 		accountRepository.deleteAll();//先清空数据
-		accountRepository.save(new Account("foo","pass"));
+		accountRepository.save(new Account("foo","pass",true,true,true,true, "write,read"));
 		System.out.println("数据加载完毕");
 	}
 }

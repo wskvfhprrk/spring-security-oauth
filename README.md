@@ -189,3 +189,64 @@ public class AuthorizatiionServerApplication implements CommandLineRunner {
 
 - 使用basic auth方式，**username和password要与oauth配置中的clinet中的一致，params中username和password要与数据库中的用户名密码一致**，同时grant_type必须为：password——**在微服务环境中，服务间的访问一般使用possword方式，对外服务则使用code方式获取access_token**，使用方法为post，地址`/oauth/token`即可获取token。
 
+
+
+## 11、修改代码，使其符合开发和生产环境
+
+### 1、用户信息增加一些字段，修改Account:
+
+```java
+package com.hejz.authorizatiionserver.entity;
+
+import lombok.Data;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+@Data
+@Entity
+public class Account {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String username, password,roles;
+    private Boolean enable,credentials,lock,expired;
+
+    public Account() {
+    }
+
+    public Account(String username, String password, Boolean enable, Boolean credentials, Boolean lock, Boolean expired, String roles) {
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+        this.enable = enable;
+        this.credentials = credentials;
+        this.lock = lock;
+        this.expired = expired;
+    }
+}
+
+```
+
+### 2、修改`UserDetailsServiceImpl`：
+
+```java
+@Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<Account> user = accountRepository.findByUsername(username);
+        return user.map(account ->
+                new User(account.getUsername(), account.getPassword(), account.getEnable(), account.getExpired(), account.getCredentials(), account.getLock()
+                        , Arrays.stream(account.getRoles().split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList()))
+        )
+                //用户不存在抛异常
+                .orElseThrow(() -> new UsernameNotFoundException("该用户不存在"));
+    }
+```
+
+### 3、初始化数据修改：
+
+```java
+accountRepository.save(new Account("foo","pass",true,true,true,true, "write,read"));
+```
+
