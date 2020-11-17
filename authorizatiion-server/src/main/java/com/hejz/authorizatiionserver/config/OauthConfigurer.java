@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -41,7 +42,10 @@ public class OauthConfigurer extends AuthorizationServerConfigurerAdapter {
         clients.inMemory()
                 .withClient("client")
                 .secret(passwordEncoder.encode("secret"))
-                .scopes("all");
+                .scopes("w","r")
+                .and()
+                .withClient("resource-server").secret(passwordEncoder.encode("resource-secret")).scopes("all")
+        ;
     }
 
     @Override
@@ -52,6 +56,7 @@ public class OauthConfigurer extends AuthorizationServerConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder(){
         return NoOpPasswordEncoder.getInstance();
+//        return new BCryptPasswordEncoder();
     }
 
     @Bean

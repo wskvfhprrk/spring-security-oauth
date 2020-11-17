@@ -3,7 +3,9 @@ oauth服务的使用——oauth2如何保护微服务的
 
 学习来源于youtube的[Tutorial] Spring OAuth2 - the easy way
 
-## 1、建立maven项目
+## 1、建立authorizationServer服务
+
+### 1、建立maven项目
 
 需要的denpendencies：
 
@@ -12,7 +14,7 @@ oauth服务的使用——oauth2如何保护微服务的
 - cloud oauth2
 - h2
 
-## 2、把项目配置为authorization server
+### 2、把项目配置为authorization server
 
 - 可以直接在main上加入注解`@EanbleAuthorizationServer`
 - 可以写一个AuthorizationServerConfig:
@@ -27,7 +29,7 @@ public class AuthorizationServerConfig {
 }
 ```
 
-## 3、建立用户的实体类和Reposiatory：
+### 3、建立用户的实体类和Reposiatory：
 
 ```java
 
@@ -49,7 +51,7 @@ public class Account {
 }
 ```
 
-## 4、配置`JpaConfig`
+### 4、配置`JpaConfig`
 
 ```java
 @Configuration
@@ -58,7 +60,7 @@ public class JpaConfig {
 }
 ```
 
-## 5、`UserDetailsService`实现类：
+### 5、`UserDetailsService`实现类：
 
 ```java
 @Service
@@ -76,7 +78,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 }
 ```
 
-## 7、spring security配置类:
+### 7、spring security配置类:
 
 ```java
 @Configuration
@@ -101,7 +103,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 
 **注意：AuthenticationManager的Bean,方法名一定要写成authenticationManagerBean否则会报堆栈溢出（o.s.s.o.provider.endpoint.TokenEndpoint  : Handling error: NestedServletException, Handler dispatch failed; nested exception is java.lang.StackOverflowError）**
 
-## 8、oauth2配置类：
+### 8、oauth2配置类：
 
 ```java
 @Configuration
@@ -153,7 +155,7 @@ public class OauthConfigurer extends AuthorizationServerConfigurerAdapter {
 }
 ```
 
-9、项目启动后添加一个用户到数据库中：
+### 9、项目启动后添加一个用户到数据库中：
 
 ```java
 @SpringBootApplication
@@ -185,15 +187,15 @@ public class AuthorizatiionServerApplication implements CommandLineRunner {
 
 **可以使用@PostConstruct注解，或是在Application中实现commandLineRunner,main主程运行完后在run方法中加载程序运行加入预置数据即可**
 
-## 10、使用postman测试
+### 10、使用postman测试
 
 - 使用basic auth方式，**username和password要与oauth配置中的clinet中的一致，params中username和password要与数据库中的用户名密码一致**，同时grant_type必须为：password——**在微服务环境中，服务间的访问一般使用possword方式，对外服务则使用code方式获取access_token**，使用方法为post，地址`/oauth/token`即可获取token。
 
 
 
-## 11、修改代码，使其符合开发和生产环境
+### 11、修改代码，使其符合开发和生产环境
 
-### 1、用户信息增加一些字段，修改Account:
+#### 1、用户信息增加一些字段，修改Account:
 
 ```java
 package com.hejz.authorizatiionserver.entity;
@@ -229,7 +231,7 @@ public class Account {
 
 ```
 
-### 2、修改`UserDetailsServiceImpl`：
+#### 2、修改`UserDetailsServiceImpl`：
 
 ```java
 @Override
@@ -244,9 +246,53 @@ public class Account {
     }
 ```
 
-### 3、初始化数据修改：
+#### 3、初始化数据修改：
 
 ```java
 accountRepository.save(new Account("foo","pass",true,true,true,true, "write,read"));
 ```
 
+## 2、建resourceServer
+
+### 1、在授权服务的oauth配置文件`OauthConfigurer`中，把clients配置添加入clientId和secert
+
+```java
+@Override
+    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+        //内存里建立一个clientId为client，密钥为secret,scopes为all的客户端
+        clients.inMemory()
+                .withClient("client")
+                .secret(passwordEncoder.encode("secret"))
+                .scopes("all")
+                .and()
+                .withClient("resource-server").secret(passwordEncoder.encode("resource-secret")).scopes("all");
+    }
+```
+
+### 2、添加依赖包：
+
+- web
+- cloud oauth2
+
+### 3、启动资源服务器——添加注解`@EnableResourceServer`
+
+4、配置`application.yml`:
+
+```yml
+server:
+  port: 8081
+
+security:
+  oauth2:
+    resource:
+      token-info-uri: http://localhost:8080/oauth/check_token
+    client:
+      client-id: resource-server
+      client-secret: resource-secret
+      authorized-grant-types: password
+```
+
+5、使用postman测试：
+
+- 直接访问开发权限的可不用认证就访问了
+- 如果需要认证的api，需要先向authorizationServer申请token，加入token才可以访问
