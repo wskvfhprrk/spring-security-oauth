@@ -27,8 +27,10 @@ public class AuthorizationServerConfig {
 }
 ```
 
-`### 3、配置`application.yml`：
+###  3、配置`application.yml`：
+
 `
+
 ```yml
 
 spring:
@@ -50,8 +52,7 @@ security:
 
 ```
 
-
-5、使用postman测试：
+### 5、使用postman测试：
 
 - 访问/oauth/token获取到token
 - 访问/oauth/check_token可以拿到token的值
