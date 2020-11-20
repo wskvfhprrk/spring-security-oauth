@@ -29,8 +29,6 @@ public class AuthorizationServerConfig {
 
 ###  3、配置`application.yml`：
 
-`
-
 ```yml
 
 spring:
@@ -57,3 +55,4 @@ security:
 - 访问/oauth/token获取到token
 - 访问/oauth/check_token可以拿到token的值
 **要配置check-token-access: permitAll**
+
