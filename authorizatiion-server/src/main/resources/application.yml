@@ -1,16 +1,16 @@
-spring:
-  security:
-    user:
-      name: foo
-      password: 123456
-      roles: admin,user
-security:
-  oauth2:
-    client:
-      client-id: client
-      client-secret: secret
-      authorized-grant-types: password,refresh_token,authorization_code,client_credentails
-      scope: w,r
-      access-token-validity-seconds: 3600
-    authorization:
-      check-token-access: permitAll
+#spring:
+#  security:
+#    user:
+#      name: foo
+#      password: 123456
+#      roles: admin,user
+#security:
+#  oauth2:
+#    client:
+#      client-id: client
+#      client-secret: secret
+#      authorized-grant-types: password,refresh_token,authorization_code,client_credentails
+#      scope: w,r
+#      access-token-validity-seconds: 3600
+#    authorization:
+#      check-token-access: permitAll

@@ -31,6 +31,7 @@
       <list>
         <option value="$PROJECT_DIR$/authorizatiion-server/pom.xml" />
         <option value="$PROJECT_DIR$/resource-server/pom.xml" />
+        <option value="$PROJECT_DIR$/authentication-server-jdbc/pom.xml" />
       </list>
     </option>
   </component>

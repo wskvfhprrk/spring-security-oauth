@@ -8,9 +8,11 @@
         <outputRelativeToContentRoot value="true" />
         <module name="authorizatiion-server" />
         <module name="resource-server" />
+        <module name="authentication-server-jdbc" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="authentication-server-jdbc" target="1.8" />
       <module name="authorizatiion-server" target="1.8" />
       <module name="authorization-server" target="1.8" />
       <module name="authorzation-server" target="1.8" />
@@ -19,6 +21,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="authentication-server-jdbc" options="-parameters" />
       <module name="authorizatiion-server" options="-parameters" />
       <module name="resource-server" options="-parameters" />
     </option>
